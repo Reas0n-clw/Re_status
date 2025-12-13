@@ -1,0 +1,25 @@
+{
+  "name": "status-collector-windows",
+  "version": "1.0.0",
+  "description": "Windows 数据采集客户端",
+  "main": "collector.js",
+  "type": "module",
+  "scripts": {
+    "start": "node collector.js",
+    "dev": "node --watch collector.js"
+  },
+  "keywords": [
+    "windows",
+    "activity",
+    "monitor",
+    "collector"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "active-win": "^8.0.0",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2"
+  }
+}
+

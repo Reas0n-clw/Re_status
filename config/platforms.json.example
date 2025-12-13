@@ -1,0 +1,43 @@
+{
+  "steam": {
+    "enabled": true,
+    "api": {
+      "steamId64": "你的SteamID64（公开信息）"
+    }
+  },
+  "bilibili": {
+    "enabled": true,
+    "api": {
+      "uid": "你的Bilibili用户ID（UID，必需）"
+    }
+  },
+  "github": {
+    "enabled": true,
+    "api": {
+      "username": "你的GitHub用户名"
+    }
+  },
+  "discord": {
+    "enabled": true,
+    "api": {
+      "userId": "你的Discord用户ID"
+    }
+  },
+  "spotify": {
+    "enabled": true,
+    "api": {
+      "clientId": "Spotify Client ID（非密钥）",
+      "userId": "你的Spotify用户ID"
+    }
+  },
+  "weather": {
+    "enabled": true,
+    "api": {
+      "qweather": {
+        "city": "城市名称（可选，不填则使用IP定位）",
+        "ownerLocationId": "站长位置 Location ID（可选，使用站长天气时填写）"
+      }
+    }
+  }
+}
+

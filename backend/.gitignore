@@ -1,0 +1,10 @@
+# backend/.gitignore
+.env
+data/
+uploads/
+logs/
+config/site.json
+config/platforms.json
+node_modules/
+*.log
+.DS_Store

@@ -1,0 +1,9 @@
+{
+  "profile": {
+    "name": "你的昵称",
+    "avatar": "头像图片URL或本地路径（相对于backend/uploads目录，例如：avatars/my-avatar.jpg）",
+    "location": "所在位置，例如：北京, 中国",
+    "bgImage": "背景图片URL或本地路径（相对于backend/uploads目录，例如：bg-images/my-bg.jpg）"
+  }
+}
+
