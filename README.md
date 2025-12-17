@@ -40,19 +40,13 @@ npm install
 cd backend
 cp env.example .env
 # 填写 API_KEY / QWEATHER_KEY / STEAM_API_KEY 等
-
-# 返回根目录启动开发
-cd ..
-npm run dev
 ```
-
-访问 `http://localhost:3000`，前端会自动匹配 API 地址。局域网访问时自动使用服务器 IP。
 
 ## 部署与启动脚本
 
 推荐使用 `scripts/` 下的启动脚本：
 
-- Windows：`start.bat silent` 或 `start.ps1 -Silent`（支持安装/卸载开机自启）
+- Windows：`start.bat silent`，（支持安装开机自启）
 - Linux：`./start.sh start`，可安装 systemd 服务
 - OpenWrt：`./start-openwrt.sh start`，支持 init.d 自启动
 

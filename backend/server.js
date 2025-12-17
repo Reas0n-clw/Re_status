@@ -479,9 +479,16 @@ let usageRecords = loadUsageData();
 
 /**
  * 获取今天的日期字符串（YYYY-MM-DD）
+ * 使用北京时间（Asia/Shanghai）作为“今日”的基准，
+ * 确保电脑卡片「今日运行时长」在北京时间 24:00 重置。
  */
 function getTodayDateString() {
-  const now = new Date();
+  // 将当前时间转换为北京时间
+  const beijingString = new Date().toLocaleString('zh-CN', {
+    timeZone: 'Asia/Shanghai'
+  });
+  const now = new Date(beijingString);
+
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
@@ -3085,25 +3092,50 @@ app.post('/api/report/device', (req, res) => {
 
       // 今日在线时长（秒），默认从缓存读取
       let todayOnlineSeconds = prevStatus?.todayOnlineSeconds || 0;
+      // 今日开始在线的时间（用于计算累计时长）
+      let todayOnlineStartTime = prevStatus?.todayOnlineStartTime;
 
-      // 如果跨天，重置今日在线时长
+      // 如果跨天，重置今日在线时长和开始时间
       if (prevDateStr !== today) {
         todayOnlineSeconds = 0;
+        todayOnlineStartTime = null;
       }
 
-      // 如果上一条状态是在线，则累加从上次上报到现在的时长
-      const wasOnline = prevStatus && (prevStatus.status || 'online') !== 'offline';
-      // 当前是否在线（用于判断是否继续累加）
-      const isNowOnline = (deviceData.status || 'online') !== 'offline';
+      // 判断设备状态
+      const wasOnline = prevStatus && (prevStatus.status || 'online') !== 'offline' && (prevStatus.status || 'online') !== 'sleep';
+      const isNowOnline = (deviceData.status || 'online') !== 'offline' && (deviceData.status || 'online') !== 'sleep';
       
-      // 只有当上一条状态是在线，且当前状态也是在线时，才累加时长
-      // 如果当前状态是离线，不累加（停止计时）
-      if (wasOnline && isNowOnline && prevStatus.lastUpdate) {
-        const prevTime = new Date(prevStatus.lastUpdate);
-        const deltaSeconds = Math.max(0, Math.floor((now - prevTime) / 1000));
-        todayOnlineSeconds += deltaSeconds;
+      if (isNowOnline) {
+        // 设备当前在线
+        if (prevStatus?.lastUpdate) {
+          // 有上次上报记录
+          const prevTime = new Date(prevStatus.lastUpdate);
+          const deltaSeconds = Math.max(0, Math.floor((now - prevTime) / 1000));
+          
+          // 如果没有开始时间，初始化开始时间
+          if (!todayOnlineStartTime) {
+            todayOnlineStartTime = prevStatus.lastUpdate;
+          }
+          
+          // 只要设备当前在线，且有上次上报记录，就累加时长
+          // 如果距离上次上报在合理范围内（24小时内），累加时长
+          // 这样可以处理设备上报频率低的情况
+          if (deltaSeconds <= 86400) {
+            // 累加从上次上报到现在的时长
+            todayOnlineSeconds += deltaSeconds;
+          }
+          // 如果超过24小时，可能是跨天或设备长时间离线，不累加，但保留之前的累计时长
+        } else {
+          // 第一次上报，初始化开始时间
+          todayOnlineStartTime = now.toISOString();
+          todayOnlineSeconds = 0;
+        }
+      } else {
+        // 设备当前离线或睡眠，停止计时，但保留已累计的时长和开始时间
+        // 这样设备重新上线时可以继续累计
       }
 
+      // 保存设备状态，注意：todayOnlineSeconds 和 todayOnlineStartTime 必须在 deviceData 之后设置，避免被覆盖
       deviceStatusCache[deviceId] = {
         ...deviceData,
         deviceId,
@@ -3111,10 +3143,18 @@ app.post('/api/report/device', (req, res) => {
         deviceName: normalizedName,
         lastUpdate: now.toISOString(),
         // 将今日在线时长写入状态，供前端展示「今日运行时长」
+        // 必须在 deviceData 之后设置，避免被 deviceData 中的 uptime 覆盖
         todayOnlineSeconds,
-        // 兼容旧字段：uptime 使用今日在线时长
+        // 保存今日开始在线的时间，用于计算累计时长
+        todayOnlineStartTime: todayOnlineStartTime || undefined,
+        // 兼容旧字段：uptime 使用今日在线时长（覆盖 deviceData 中的 uptime）
         uptime: todayOnlineSeconds
       };
+      
+      // 调试日志：输出今日在线时长
+      if (deviceId === 'pc') {
+        console.log(`[设备状态] ${deviceId} 今日在线时长: ${todayOnlineSeconds}秒 (${formatUptime(todayOnlineSeconds)})`);
+      }
       
       // 保存设备状态到文件（持久化）
       saveDeviceStatus();

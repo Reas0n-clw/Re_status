@@ -18,10 +18,9 @@ cp env.example .env   # 填写 API_BASE_URL / API_KEY
 
 ## 运行方式
 
-- 直接运行：`start.bat` 或 `.\start.ps1`
-- 隐藏后台：`start.bat silent` 或 `.\start.ps1 -Silent`
-- 开机自启（管理员）：`start.bat install` 或 `.\start.ps1 -Install`
-- 卸载自启（管理员）：`start.bat uninstall` 或 `.\start.ps1 -Uninstall`
+- 直接运行：`start.bat`
+- 隐藏后台：`start.bat silent`
+- 开机自启并隐藏后台：reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "MyHiddenBat" /t REG_SZ /d "mshta vbscript:CreateObject(\"WScript.Shell\").Run(\"cmd /c \"\"%cd%\start.bat\"\"\",0)(window.close)" /f
 
 ## 数据格式
 

@@ -2,14 +2,6 @@
 
 Express 构建的 API 与静态资源服务，负责状态查询、设备上报、文件上传及 WebSocket 推送。生产环境直接托管前端构建产物（`dist`）。
 
-## 快速开始
-
-```bash
-cd backend
-npm install
-cp env.example .env
-```
-
 核心环境变量（写入 `.env`）：
 - `PORT`：服务端口，默认 `3000`
 - `HOST`：监听地址，默认 `0.0.0.0`
